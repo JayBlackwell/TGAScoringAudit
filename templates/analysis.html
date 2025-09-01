@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Running Analysis - TGA Scoring Audit{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Step Indicator -->
+        <div class="step-indicator text-center">
+            <span class="step completed">1</span>
+            <span class="step completed">2</span>
+            <span class="step completed">3</span>
+            <span class="step active">4</span>
+            <span class="step">5</span>
+        </div>
+
+        <!-- Analysis Card -->
+        <div class="card">
+            <div class="card-header bg-orange text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-gear-fill" id="gear-icon"></i> Step 4: Running Analysis
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info" id="session-info">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Season:</strong> {{ session.season_name }}<br>
+                            <strong>Date Range:</strong> {{ session.start_date }} to {{ session.end_date }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mb-4">
+                    <p class="lead">Analyzing your golf league scoring data...</p>
+                    <p class="text-muted">This may take a few minutes depending on the amount of data.</p>
+                </div>
+
+                <!-- Progress Section -->
+                <div id="progress-section">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-muted" id="progress-label">Initializing...</small>
+                            <small class="text-muted" id="progress-percent">0%</small>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" id="progress-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Messages -->
+                <div id="status-messages" class="mt-4">
+                    <!-- Messages will be added here by JavaScript -->
+                </div>
+
+                <!-- Results Button (initially hidden) -->
+                <div class="text-center mt-4" id="results-section" style="display: none;">
+                    <button class="btn btn-success btn-lg" id="view-results-btn" onclick="viewResults()">
+                        <i class="bi bi-table"></i> View Results
+                    </button>
+                </div>
+
+                <!-- Error Section (initially hidden) -->
+                <div id="error-section" class="alert alert-danger mt-4" style="display: none;">
+                    <h6><i class="bi bi-exclamation-triangle"></i> Analysis Failed</h6>
+                    <p id="error-message"></p>
+                    <button class="btn btn-outline-danger" onclick="location.reload()">
+                        <i class="bi bi-arrow-clockwise"></i> Retry
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="text-center mt-3">
+            <a href="{{ url_for('date_range_selection') }}?season_id={{ session.season_id }}&season_name={{ session.season_name }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Date Range
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
+.progress-bar {
+    transition: width 0.3s ease;
+}
+
+.status-message {
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    border-left: 4px solid #ff6633;
+}
+
+.status-message.success {
+    background-color: #d4edda;
+    border-left-color: #28a745;
+    color: #155724;
+}
+
+.status-message.warning {
+    background-color: #fff3cd;
+    border-left-color: #ffc107;
+    color: #856404;
+}
+</style>
+
+<script>
+// Start analysis when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    startAnalysis();
+    
+    // Start spinning the gear icon
+    document.getElementById('gear-icon').classList.add('spinning');
+});
+
+function startAnalysis() {
+    // Show initial progress
+    updateProgress('Starting analysis...', 10);
+    addStatusMessage('Starting analysis...');
+    
+    // Make API call to analyze
+    fetch('/api/analyze', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateProgress('Analysis complete!', 100);
+            addStatusMessage(`Analysis complete! Found ${data.flagged_count} flagged rounds out of ${data.total_rounds} total rounds.`, 'success');
+            completeAnalysis();
+        } else {
+            showError(data.error || 'Unknown error occurred');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('Failed to complete analysis: ' + error.message);
+    });
+    
+    // Simulate progress updates while waiting
+    let progress = 10;
+    const progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += 10;
+            updateProgress('Analyzing data...', progress);
+        } else {
+            clearInterval(progressInterval);
+        }
+    }, 1000);
+}
+
+function updateProgress(message, percent) {
+    document.getElementById('progress-label').textContent = message;
+    document.getElementById('progress-percent').textContent = Math.round(percent) + '%';
+    document.getElementById('progress-bar').style.width = percent + '%';
+}
+
+function addStatusMessage(message, type = 'info') {
+    const messagesContainer = document.getElementById('status-messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `status-message ${type}`;
+    messageDiv.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${message}`;
+    messagesContainer.appendChild(messageDiv);
+    
+    // Scroll to bottom
+    messageDiv.scrollIntoView({ behavior: 'smooth' });
+}
+
+function completeAnalysis() {
+    // Stop spinning gear
+    document.getElementById('gear-icon').classList.remove('spinning');
+    document.getElementById('gear-icon').className = 'bi bi-check-circle text-success';
+    
+    // Update progress to complete
+    updateProgress('Analysis complete!', 100);
+    addStatusMessage('Analysis complete! Ready to view results.', 'success');
+    
+    // Show results button
+    document.getElementById('results-section').style.display = 'block';
+}
+
+function viewResults() {
+    window.location.href = "{{ url_for('results') }}";
+}
+
+function showError(message) {
+    document.getElementById('gear-icon').classList.remove('spinning');
+    document.getElementById('gear-icon').className = 'bi bi-exclamation-triangle text-danger';
+    
+    document.getElementById('error-message').textContent = message;
+    document.getElementById('error-section').style.display = 'block';
+}
+
+// Prevent accidental page refresh
+window.addEventListener('beforeunload', function(e) {
+    const confirmationMessage = 'Analysis is in progress. Are you sure you want to leave?';
+    e.returnValue = confirmationMessage;
+    return confirmationMessage;
+});
+</script>
+{% endblock %}

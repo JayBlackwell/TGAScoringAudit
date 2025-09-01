@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Season Selection - TGA Scoring Audit{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <!-- Step Indicator -->
+        <div class="step-indicator text-center">
+            <span class="step completed">1</span>
+            <span class="step active">2</span>
+            <span class="step">3</span>
+            <span class="step">4</span>
+            <span class="step">5</span>
+        </div>
+
+        <!-- Form Card -->
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-calendar-range"></i> Step 2: Select Season
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-4">
+                    Choose the season you want to audit. We found {{ seasons|length }} available seasons in your account.
+                </p>
+
+                {% if seasons %}
+                <div class="row">
+                    {% for season in seasons %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 season-card" style="cursor: pointer;" onclick="selectSeason('{{ season.id }}', '{{ season.name }}')">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="bi bi-trophy"></i> {{ season.name }}
+                                </h6>
+                                <p class="card-text text-muted small">
+                                    Season ID: {{ season.id }}
+                                </p>
+                                <p class="card-text">
+                                    {% if season.start_date and season.end_date %}
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar2-range"></i> 
+                                            {{ season.start_date.strftime('%B %d, %Y') }} - {{ season.end_date.strftime('%B %d, %Y') }}
+                                        </small>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <small class="text-primary">
+                                    <i class="bi bi-arrow-right-circle"></i> Click to select
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    No seasons found. Please check your API key permissions or contact Golf Genius support.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="text-center mt-3">
+            <a href="{{ url_for('api_key_setup') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to API Key
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.season-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+    transition: all 0.2s ease-in-out;
+}
+</style>
+
+<script>
+function selectSeason(seasonId, seasonName) {
+    // Create a form and submit it
+    const form = document.createElement('form');
+    form.method = 'GET';
+    form.action = '{{ url_for("date_range_selection") }}';
+    
+    const seasonIdInput = document.createElement('input');
+    seasonIdInput.type = 'hidden';
+    seasonIdInput.name = 'season_id';
+    seasonIdInput.value = seasonId;
+    
+    const seasonNameInput = document.createElement('input');
+    seasonNameInput.type = 'hidden';
+    seasonNameInput.name = 'season_name';
+    seasonNameInput.value = seasonName;
+    
+    form.appendChild(seasonIdInput);
+    form.appendChild(seasonNameInput);
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+{% endblock %}

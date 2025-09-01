@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}API Key Setup - TGA Scoring Audit{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-6 mx-auto">
+        <!-- Step Indicator -->
+        <div class="step-indicator text-center">
+            <span class="step active">1</span>
+            <span class="step">2</span>
+            <span class="step">3</span>
+            <span class="step">4</span>
+            <span class="step">5</span>
+        </div>
+
+        <!-- Form Card -->
+        <div class="card">
+            <div class="card-header bg-orange text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-key"></i> Step 1: API Key Setup
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-4">
+                    Enter your Golf Genius API key to connect to the system. We'll test the connection to ensure it's working properly.
+                </p>
+
+                <form method="post">
+                    <div class="mb-4">
+                        <label for="api_key" class="form-label">
+                            Golf Genius API Key <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-key"></i>
+                            </span>
+                            <input 
+                                type="password" 
+                                class="form-control" 
+                                id="api_key" 
+                                name="api_key" 
+                                placeholder="Enter your API key..."
+                                required
+                                autocomplete="off"
+                            >
+                            <button 
+                                type="button" 
+                                class="btn btn-outline-secondary" 
+                                id="toggle-password"
+                                onclick="togglePassword()"
+                            >
+                                <i class="bi bi-eye" id="eye-icon"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">
+                            Your API key will be used securely and not stored permanently.
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-orange">
+                            <i class="bi bi-wifi"></i> Connect & Test API Key
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Help Section -->
+                <div class="mt-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-question-circle"></i> Need an API Key?
+                            </h6>
+                            <p class="card-text small mb-0">
+                                Contact Golf Genius support to request API access for your account. 
+                                You'll need administrative privileges for your golf organization.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="text-center mt-3">
+            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePassword() {
+    const passwordInput = document.getElementById('api_key');
+    const eyeIcon = document.getElementById('eye-icon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.classList.remove('bi-eye');
+        eyeIcon.classList.add('bi-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        eyeIcon.classList.remove('bi-eye-slash');
+        eyeIcon.classList.add('bi-eye');
+    }
+}
+</script>
+{% endblock %}
