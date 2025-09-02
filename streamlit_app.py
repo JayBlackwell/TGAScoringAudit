@@ -4,7 +4,7 @@
 import streamlit as st
 import pandas as pd
 import csv
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from typing import List, Optional
 from io import StringIO
 
@@ -283,18 +283,18 @@ def show_date_range_step():
         
         # Quick presets
         st.subheader("Quick Presets:")
-        preset_cols = st.columns(4)
+        preset_cols = st.columns(5)
         
         with preset_cols[0]:
             if st.button("Last 7 Days"):
                 end_date = date.today()
-                start_date = date.today().replace(day=date.today().day - 7)
+                start_date = date.today() - timedelta(days=7)
                 st.rerun()
         
         with preset_cols[1]:
             if st.button("Last 30 Days"):
                 end_date = date.today()
-                start_date = date.today().replace(day=date.today().day - 30)
+                start_date = date.today() - timedelta(days=30)
                 st.rerun()
         
         with preset_cols[2]:
@@ -306,8 +306,15 @@ def show_date_range_step():
         with preset_cols[3]:
             if st.button("Last Month"):
                 today = date.today()
-                end_date = today.replace(day=1) - datetime.timedelta(days=1)
+                end_date = today.replace(day=1) - timedelta(days=1)
                 start_date = end_date.replace(day=1)
+                st.rerun()
+        
+        with preset_cols[4]:
+            if st.button("Yesterday"):
+                yesterday = date.today() - timedelta(days=1)
+                start_date = yesterday
+                end_date = yesterday
                 st.rerun()
         
         # Validate and store dates
