@@ -265,19 +265,25 @@ def show_date_range_step():
         
         st.write("Choose the date range for your scoring audit. Only rounds within this range will be analyzed.")
         
+        # Initialize default dates in session state if not set
+        if 'preset_start_date' not in st.session_state:
+            st.session_state.preset_start_date = date.today().replace(day=1)  # First day of current month
+        if 'preset_end_date' not in st.session_state:
+            st.session_state.preset_end_date = date.today()
+        
         col1, col2 = st.columns(2)
         
         with col1:
             start_date = st.date_input(
                 "Start Date",
-                value=date.today().replace(day=1),  # First day of current month
+                value=st.session_state.preset_start_date,
                 help="Choose the start date for analysis"
             )
         
         with col2:
             end_date = st.date_input(
                 "End Date",
-                value=date.today(),
+                value=st.session_state.preset_end_date,
                 help="Choose the end date for analysis"
             )
         
@@ -287,35 +293,39 @@ def show_date_range_step():
         
         with preset_cols[0]:
             if st.button("Last 7 Days"):
-                end_date = date.today()
-                start_date = date.today() - timedelta(days=7)
+                st.session_state.preset_end_date = date.today()
+                st.session_state.preset_start_date = date.today() - timedelta(days=7)
                 st.rerun()
         
         with preset_cols[1]:
             if st.button("Last 30 Days"):
-                end_date = date.today()
-                start_date = date.today() - timedelta(days=30)
+                st.session_state.preset_end_date = date.today()
+                st.session_state.preset_start_date = date.today() - timedelta(days=30)
                 st.rerun()
         
         with preset_cols[2]:
             if st.button("This Month"):
-                end_date = date.today()
-                start_date = date.today().replace(day=1)
+                st.session_state.preset_end_date = date.today()
+                st.session_state.preset_start_date = date.today().replace(day=1)
                 st.rerun()
         
         with preset_cols[3]:
             if st.button("Last Month"):
                 today = date.today()
-                end_date = today.replace(day=1) - timedelta(days=1)
-                start_date = end_date.replace(day=1)
+                st.session_state.preset_end_date = today.replace(day=1) - timedelta(days=1)
+                st.session_state.preset_start_date = st.session_state.preset_end_date.replace(day=1)
                 st.rerun()
         
         with preset_cols[4]:
             if st.button("Yesterday"):
                 yesterday = date.today() - timedelta(days=1)
-                start_date = yesterday
-                end_date = yesterday
+                st.session_state.preset_start_date = yesterday
+                st.session_state.preset_end_date = yesterday
                 st.rerun()
+        
+        # Update session state with current input values
+        st.session_state.preset_start_date = start_date
+        st.session_state.preset_end_date = end_date
         
         # Validate and store dates
         if start_date and end_date:
