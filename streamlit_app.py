@@ -323,10 +323,6 @@ def show_date_range_step():
                 st.session_state.preset_end_date = yesterday
                 st.rerun()
         
-        # Update session state with current input values
-        st.session_state.preset_start_date = start_date
-        st.session_state.preset_end_date = end_date
-        
         # Validate and store dates
         if start_date and end_date:
             if start_date <= end_date:
