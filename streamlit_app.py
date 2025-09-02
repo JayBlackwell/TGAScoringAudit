@@ -270,6 +270,8 @@ def show_date_range_step():
             st.session_state.preset_start_date = date.today().replace(day=1)  # First day of current month
         if 'preset_end_date' not in st.session_state:
             st.session_state.preset_end_date = date.today()
+        if 'widget_key' not in st.session_state:
+            st.session_state.widget_key = 0
         
         col1, col2 = st.columns(2)
         
@@ -277,14 +279,16 @@ def show_date_range_step():
             start_date = st.date_input(
                 "Start Date",
                 value=st.session_state.preset_start_date,
-                help="Choose the start date for analysis"
+                help="Choose the start date for analysis",
+                key=f"start_date_{st.session_state.widget_key}"
             )
         
         with col2:
             end_date = st.date_input(
                 "End Date",
                 value=st.session_state.preset_end_date,
-                help="Choose the end date for analysis"
+                help="Choose the end date for analysis",
+                key=f"end_date_{st.session_state.widget_key}"
             )
         
         # Quick presets
@@ -295,18 +299,21 @@ def show_date_range_step():
             if st.button("Last 7 Days"):
                 st.session_state.preset_end_date = date.today()
                 st.session_state.preset_start_date = date.today() - timedelta(days=7)
+                st.session_state.widget_key += 1
                 st.rerun()
         
         with preset_cols[1]:
             if st.button("Last 30 Days"):
                 st.session_state.preset_end_date = date.today()
                 st.session_state.preset_start_date = date.today() - timedelta(days=30)
+                st.session_state.widget_key += 1
                 st.rerun()
         
         with preset_cols[2]:
             if st.button("This Month"):
                 st.session_state.preset_end_date = date.today()
                 st.session_state.preset_start_date = date.today().replace(day=1)
+                st.session_state.widget_key += 1
                 st.rerun()
         
         with preset_cols[3]:
@@ -314,6 +321,7 @@ def show_date_range_step():
                 today = date.today()
                 st.session_state.preset_end_date = today.replace(day=1) - timedelta(days=1)
                 st.session_state.preset_start_date = st.session_state.preset_end_date.replace(day=1)
+                st.session_state.widget_key += 1
                 st.rerun()
         
         with preset_cols[4]:
@@ -321,6 +329,7 @@ def show_date_range_step():
                 yesterday = date.today() - timedelta(days=1)
                 st.session_state.preset_start_date = yesterday
                 st.session_state.preset_end_date = yesterday
+                st.session_state.widget_key += 1
                 st.rerun()
         
         # Validate and store dates
