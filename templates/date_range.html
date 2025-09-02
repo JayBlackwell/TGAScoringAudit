@@ -144,8 +144,16 @@ function setDateRange(preset) {
             break;
     }
     
-    startDate.value = start.toISOString().split('T')[0];
-    endDate.value = end.toISOString().split('T')[0];
+    // Format dates to YYYY-MM-DD without timezone issues
+    const formatDate = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+    
+    startDate.value = formatDate(start);
+    endDate.value = formatDate(end);
 }
 
 // Set max date to today
