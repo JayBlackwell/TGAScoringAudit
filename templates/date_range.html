@@ -81,6 +81,9 @@
                             <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDateRange('lastmonth')">
                                 Last Month
                             </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setDateRange('yesterday')">
+                                Yesterday
+                            </button>
                         </div>
                     </div>
 
@@ -131,6 +134,13 @@ function setDateRange(preset) {
         case 'lastmonth':
             start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
             end = new Date(today.getFullYear(), today.getMonth(), 0);
+            break;
+            
+        case 'yesterday':
+            start = new Date(today);
+            start.setDate(today.getDate() - 1);
+            end = new Date(today);
+            end.setDate(today.getDate() - 1);
             break;
     }
     
